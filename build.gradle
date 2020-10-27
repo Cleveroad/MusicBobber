@@ -1,7 +1,8 @@
 apply from: 'dependencies.gradle'
 
 buildscript {
-    ext.build_gradle_version = '3.4.1'
+    ext.kotlin_version = '1.4.10'
+    ext.build_gradle_version = '4.0.2'
 
     repositories {
         google()
@@ -9,8 +10,11 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'https://jitpack.io' }
     }
+
+
     dependencies {
         classpath "com.android.tools.build:gradle:$build_gradle_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

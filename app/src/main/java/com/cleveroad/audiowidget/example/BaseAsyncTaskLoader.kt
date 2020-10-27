@@ -1,104 +1,87 @@
-package com.cleveroad.audiowidget.example;
+package com.cleveroad.audiowidget.example
 
-import android.content.Context;
-
-import androidx.loader.content.AsyncTaskLoader;
+import android.content.Context
+import androidx.loader.content.AsyncTaskLoader
 
 /**
  * Base AsyncTaskLoader implementation
  */
-abstract class BaseAsyncTaskLoader<T> extends AsyncTaskLoader<T> {
-    protected T mData;
-
-    public BaseAsyncTaskLoader(Context context) {
-        super(context);
-    }
+internal abstract class BaseAsyncTaskLoader<T>(context: Context) : AsyncTaskLoader<T>(context) {
+    private var mData: T? = null
 
     /**
      * Called when there is new data to deliver to the client.  The
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override
-    public void deliverResult(T data) {
-        if (isReset()) {
+    override fun deliverResult(data: T?) {
+        if (isReset) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (data != null) {
-                onReleaseResources(data);
-            }
+            data?.let { onReleaseResources(it) }
         }
-        T oldData = mData;
-        mData = data;
-
-        if (isStarted()) {
+        val oldData = mData
+        mData = data
+        if (isStarted) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
-            super.deliverResult(data);
+            super.deliverResult(data)
         }
 
         // At this point we can release the resources associated with
         // 'oldData' if needed; now that the new result is delivered we
         // know that it is no longer in use.
-        if (oldData != null) {
-            onReleaseResources(oldData);
-        }
+        oldData?.let { onReleaseResources(it) }
     }
 
     /**
      * Handles a request to start the Loader.
      */
-    @Override
-    protected void onStartLoading() {
+    override fun onStartLoading() {
         if (mData != null) {
             // If we currently have a result available, deliver it
             // immediately.
-            deliverResult(mData);
+            deliverResult(mData)
         }
-
         if (takeContentChanged() || mData == null) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
-            forceLoad();
+            forceLoad()
         }
     }
 
     /**
      * Handles a request to stop the Loader.
      */
-    @Override
-    protected void onStopLoading() {
+    override fun onStopLoading() {
         // Attempt to cancel the current load task if possible.
-        cancelLoad();
+        cancelLoad()
     }
 
     /**
      * Handles a request to cancel a load.
      */
-    @Override
-    public void onCanceled(T data) {
-        super.onCanceled(data);
-
+    override fun onCanceled(data: T?) {
+        super.onCanceled(data)
         // At this point we can release the resources associated with 'apps'
         // if needed.
-        onReleaseResources(data);
+        onReleaseResources(data)
     }
 
     /**
      * Handles a request to completely reset the Loader.
      */
-    @Override
-    protected void onReset() {
-        super.onReset();
+    override fun onReset() {
+        super.onReset()
 
         // Ensure the loader is stopped
-        onStopLoading();
+        onStopLoading()
 
         // At this point we can release the resources associated with 'apps'
         // if needed.
         if (mData != null) {
-            onReleaseResources(mData);
-            mData = null;
+            onReleaseResources(mData)
+            mData = null
         }
     }
 
@@ -106,7 +89,7 @@ abstract class BaseAsyncTaskLoader<T> extends AsyncTaskLoader<T> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(T apps) {
+    private fun onReleaseResources(apps: T?) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     }
